@@ -1,0 +1,7 @@
+DIR_HOME = '/eos9/czarakas/Code/plants_and_TCR/'
+DIR_DATA = DIR_HOME+'data/'
+DIR_DATA_DICTIONARIES = DIR_DATA+'cmip_dictionaries/'
+DIR_OUTPUT_FIGURES = DIR_DATA+'figures/'
+DIR_PROCESSED_DATA = DIR_DATA+'processed_data/gridded_data/'
+DIR_DATA_TESTING = DIR_DATA+'data_for_testing/'
+DIR_PROCESSED_DATA_TESTING = DIR_DATA_TESTING+'processed_data/'
