@@ -28,17 +28,19 @@ def plot_climate_response_timeseries(averageType,
                                      tcr_dict,
                                      end_yr = 70,
                                      smooth_len = 20,
+                                     dt=0.1,
                                      smoothing = True,
                                      varname=DEFAULT_VARNAME,
                                      legend_on=True,
-                                     filepath=None):
+                                     filepath=None,
+                                    fig_size=[45,30]):
     """Creates time series with CO2 concentration on x-axis
     and average temperature change on y-axis"""
     plt.rcParams.update({'font.size': FONTSIZE})
     [y1, y2] = ylims
     x1 = 0
     x2_axis = 140
-    fig = plt.figure(figsize=(45, 30))
+    fig = plt.figure(figsize=(fig_size[0], fig_size[1]))
     ax1 = plt.axes()
     linewidth = 9
 
@@ -96,12 +98,12 @@ def plot_climate_response_timeseries(averageType,
                             linewidth=linewidth)#+', TCR= '+str(np.round(this_TCR,2)))
                     
                 if m==0:
-                    value_sum = yvals
+                    value_sum = yvals[0:121]
                     num_ind=0
                 else:
-                    value_sum = value_sum+yvals
+                    value_sum = value_sum+yvals[0:121]
                     num_ind=num_ind+1
-        ax1.plot(xvals, value_sum/num_ind,color='black',linestyle=linestyle,linewidth=linewidth*2,alpha=0.7)
+        ax1.plot(xvals[0:121], value_sum/num_ind,color='black',linestyle=linestyle,linewidth=linewidth*2,alpha=0.7)
 
     # Format Figure
     if legend_on:
@@ -109,7 +111,7 @@ def plot_climate_response_timeseries(averageType,
                    fontsize=10, ncol=3, framealpha=1) #'lower right'
     plt.grid()
     plt.ylim(ylims)
-    plt.yticks(np.arange(y1, y2, 0.1))
+    plt.yticks(np.arange(y1, y2, dt))
     plt.xlim([CO2_1PCTCO2[x1], CO2_1PCTCO2[x2_axis]])
     plt.ylabel('Change in Temperature', wrap=True)
     plt.xlabel('CO$_2$ Concentration (ppm)')

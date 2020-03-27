@@ -76,7 +76,7 @@ def process_data(varname, output_path=OUTPUT_PATH, cdict=CDICT):
 
     # initialize dictionary
     raw_data_dict = dict()
-
+    
     # loop through CMIP5 and CMIP6
     for cdict_name in CDICT_NAMES:
 
@@ -144,10 +144,14 @@ def process_data(varname, output_path=OUTPUT_PATH, cdict=CDICT):
                     ds['area_weights'] = ds_areas['area_weights']
                     ds['land_weights'] = ds_areas['land_weights']
                     ds['ocean_weights'] = ds_areas['ocean_weights']
+                    ds['da_area'] = ds_areas['da_area']
+                    ds['da_land'] = ds_areas['da_land']
+                    ds['da_glac'] = ds_areas['da_glac']
                     
                     # Export file
                     ds.chunk({'lat':-1, 'lon':-1, 'time':20})
                     ds.to_netcdf(path=output_path+nametag+'.nc')
-
+                    
                     # Save to dictionary
                     raw_data_dict[nametag] = ds
+
