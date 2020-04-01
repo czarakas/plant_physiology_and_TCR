@@ -152,7 +152,10 @@ def combine_models(proc_data_dict,
                     model_data['time'] = np.arange(0, len(delta))
                     #### Add model to dataset
                     if ds_all_models['modelname'][ind] == modelname:
-                        ds_all_models[varname][:, :, :, ind] = model_data
+                        if len(delta)<240:
+                            ds_all_models[varname][0:len(delta), :, :, ind] = model_data
+                        else:
+                            ds_all_models[varname][:, :, :, ind] = model_data
                     else:
                         print('problem!')
                     #ds_all_models[modelname]=model_data
