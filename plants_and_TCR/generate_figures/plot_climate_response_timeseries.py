@@ -103,12 +103,13 @@ def plot_climate_response_timeseries(averageType,
                 else:
                     value_sum = value_sum+yvals[0:121]
                     num_ind=num_ind+1
-        ax1.plot(xvals[0:121], value_sum/num_ind,color='black',linestyle=linestyle,linewidth=linewidth*2,alpha=0.7)
+        ax1.plot(xvals[0:121], value_sum/num_ind,
+                 color='black',linestyle=linestyle,linewidth=linewidth*2,alpha=0.7)
 
     # Format Figure
     if legend_on:
         ax1.legend(loc='upper left', bbox_transform='None',
-                   fontsize=10, ncol=3, framealpha=1) #'lower right'
+                   fontsize=FONTSIZE*0.8, ncol=4, framealpha=1) #'lower right'
     plt.grid()
     plt.ylim(ylims)
     plt.yticks(np.arange(y1, y2, dt))
@@ -116,6 +117,8 @@ def plot_climate_response_timeseries(averageType,
     plt.ylabel('Change in Temperature', wrap=True)
     plt.xlabel('CO$_2$ Concentration (ppm)')
     plt.show()
+    
+    
     #fname = plttitle
     if filepath is not None:
         fig.savefig(filepath+'.png', bbox_inches='tight')

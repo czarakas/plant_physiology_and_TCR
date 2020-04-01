@@ -13,24 +13,24 @@ LINESYMBOLS=get_CMIP_info.get_line_style(CMIP_CHOICE)
 SYMBOLS=get_CMIP_info.get_marker_style(CMIP_CHOICE)
 MODELNAMES = get_CMIP_info.get_modelnames_short(CMIP_CHOICE)
 
-FONTSIZE=40
-MARKERSIZE=24
+FONTSIZE=72
+MARKERSIZE=33
 MARKEREDGEWIDTH=4
 ALPHA = 0.7
-LINEWIDTH=7
-FIGSIZE=[21,15.8]
+LINEWIDTH=9
+FIGSIZE=[39.9,30]
 CMIP6_CUTOFF = 8
 
 rc('font',**{'family':'sans-serif','sans-serif':['Arial']})
 
 def plot_scatter_CMIP(xvals, yvals, xlims, ylims,
-                      one_to_one_line=False,
-                      xlabel=None, ylabel=None, filepath=None, legend_on=False, filled=True):
+                      one_to_one_line=False, fig_dims=FIGSIZE,
+                      xlabel=None, ylabel=None, filepath=None, legend_on=False, filled=True, dt=None):
     xmin=xlims[0]
     xmax=xlims[1]
     
     plt.rcParams.update({'font.size': FONTSIZE})
-    fig, ax = plt.subplots(figsize=(FIGSIZE[0],FIGSIZE[1]))
+    fig, ax = plt.subplots(figsize=(fig_dims[0],fig_dims[1]))
     if filled:
         fillstyle_choice='full'
     else:
@@ -44,27 +44,30 @@ def plot_scatter_CMIP(xvals, yvals, xlims, ylims,
     
     # Plot multi-model means
     plt.plot(xlims, [multimodel_mean_yvals_CMIP6, multimodel_mean_yvals_CMIP6],
-             color='black', linestyle='-', linewidth=LINEWIDTH, alpha=ALPHA)
+             color='black', linestyle='-', linewidth=LINEWIDTH*2, alpha=ALPHA, label='CMIP6 Mean')
     plt.plot([multimodel_mean_xvals_CMIP6, multimodel_mean_xvals_CMIP6], xlims, 
-             color='black', linestyle='-', linewidth=LINEWIDTH, alpha=ALPHA)
+             color='black', linestyle='-', linewidth=LINEWIDTH*2, alpha=ALPHA)
     plt.plot(xlims, [multimodel_mean_yvals_CMIP5, multimodel_mean_yvals_CMIP5],
-             color='black',linestyle=':', linewidth=LINEWIDTH, alpha=ALPHA)
+             color='black',linestyle=':', linewidth=LINEWIDTH*2, alpha=ALPHA, label='CMIP5 Mean')
     plt.plot([multimodel_mean_xvals_CMIP5, multimodel_mean_xvals_CMIP5], xlims, 
-             color='black',linestyle=':', linewidth=LINEWIDTH, alpha=ALPHA)
+             color='black',linestyle=':', linewidth=LINEWIDTH*2, alpha=ALPHA)
     
     # Plot points for each model
     for i in range(0,len(yvals)):
-        plt.plot(xvals[i], yvals[i], 
-                 marker=SYMBOLS[i], linestyle=LINESYMBOLS[i],
-                 color=COLORS[i], label=MODELNAMES[i],
-                 markersize=MARKERSIZE, fillstyle=fillstyle_choice, linewidth=0, markeredgewidth=MARKEREDGEWIDTH)
+        plt.plot(xvals[i], yvals[i], label=MODELNAMES[i],
+                 marker=SYMBOLS[i], linestyle=LINESYMBOLS[i], linewidth=LINEWIDTH,
+                 color=COLORS[i], markersize=MARKERSIZE, 
+                 fillstyle=fillstyle_choice, markeredgewidth=MARKEREDGEWIDTH)
         
     # Adjust plot settings
     plt.xlim(xlims)
     plt.ylim(ylims)
+    if dt is not None:
+        plt.yticks(np.arange(ylims[0], ylims[1]+dt, dt))
+        plt.xticks(np.arange(xlims[0], xlims[1]+dt, dt))
     if one_to_one_line:
         plt.plot(xlims, xlims,
-                 color='silver', alpha=0.5, ls='-', linewidth=LINEWIDTH*2)
+                 color='silver', alpha=0.5, ls='-', linewidth=(LINEWIDTH+2)*2)
     plt.grid()
     
     if xlabel is not None:
@@ -77,5 +80,4 @@ def plot_scatter_CMIP(xvals, yvals, xlims, ylims,
     
     # Save figure
     if filepath is not None:
-        filepath=FIGURE_PATH+'land_ocean_T_contrast_scatter'
         fig.savefig(filepath+'.png', bbox_inches='tight')
