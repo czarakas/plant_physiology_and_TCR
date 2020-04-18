@@ -248,6 +248,33 @@ def grab_cmip_dataset(cdict, Mname,Rname,Vname):
         else: # it isn't a variable/model/run combo in the dictionary
             print(oldnametag1 +' or ' +oldnametag2 +' not in the dictionary')    
             return #exit here  
+        
+    elif Vname == 'rad_clouds': # create a variable from multiple variables
+        oldname1='rlds'
+        oldname2='rldscs'
+        oldname3='rsds'
+        oldname4='rsdscs'
+        oldnametag1 = Mname +'_' +Rname +'_' +oldname1
+        oldnametag2 = Mname +'_' +Rname +'_' +oldname2
+        oldnametag3 = Mname +'_' +Rname +'_' +oldname3
+        oldnametag4 = Mname +'_' +Rname +'_' +oldname4
+        
+        if (oldnametag1 in cdict and oldnametag2 in cdict and oldnametag3 in cdict and oldnametag4 in cdict):
+            DS = cdict[oldnametag1] # open the dataset
+            RLDS = DS[oldname1] # get the values
+            DS2= cdict[oldnametag2] # open the dataset
+            RLDSCS = DS2[oldname2] # get the values
+            DS3 = cdict[oldnametag3] # open the dataset
+            RSDS = DS3[oldname3] # get the values
+            DS4= cdict[oldnametag4] # open the dataset
+            RSDSCS = DS4[oldname4] # get the values
+ 
+            RLDS_CLOUDS = RLDS - RLDSCS      
+            RSDS_CLOUDS = RSDS - RSDSCS  
+            DS[Vname] = RLDS_CLOUDS+RSDS_CLOUDS
+        else: # it isn't a variable/model/run combo in the dictionary
+            print(oldnametag1 +' or ' +oldnametag2 +' not in the dictionary')    
+            return #exit here  
     
     elif Vname == 'SWnet': # create a variable from multiple variables
         oldname1='rsus'

@@ -82,8 +82,8 @@ def calculate_tcr(ds_original, tcr_type, average_type, modelname, varname, recal
 
     # Calculate weighted average for area type (global, land, ocean)
     ds_annual_global_original = area_weighting.get_global_mean_timeseries(ds_annual,
-                                                                                 modelname,
-                                                                                 average_type)
+                                                                          modelname,
+                                                                          average_type)
     ds_annual_global = copy.deepcopy(ds_annual_global_original)
 
     # Subtract preindustrial baseline if necessary

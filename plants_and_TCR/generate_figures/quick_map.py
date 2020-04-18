@@ -8,7 +8,7 @@ from cartopy.util import add_cyclic_point
 
 def quick_map(mapdata, lat, lon, title=None, cb_ttl=None,
               cmap=None, clim=None, filepath=None, sighatch=False,
-              p=None, sigmask=None, markerstyle='x', markersize=0.3, norm=None):
+              p=None, sigmask=None, markerstyle='x', markersize=0.3, alpha_choice=0.8,norm=None):
     """ Creates map """
 
     fig = plt.figure(figsize=(12, 9))
@@ -46,7 +46,7 @@ def quick_map(mapdata, lat, lon, title=None, cb_ttl=None,
                            marker=markerstyle,
                            s=markersize,
                            c=[0.6, 0.6, 0.6],
-                           alpha=0.8,
+                           alpha=alpha_choice,
                            transform=ccrs.PlateCarree())
     
     ax.patch.set_alpha(1.0)

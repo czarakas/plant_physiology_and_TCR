@@ -69,7 +69,8 @@ def calculate_diff(proc_data_dict,
                    runname2,
                    runname1,
                    varname,
-                   end_yr):
+                   end_yr,
+                   month_filter=None):
     """ Creates dataset which contains the difference
     between the two run names, during the 20 year window around the
     user-specified end year. The data is 2D (lat/lon)"""
@@ -82,12 +83,22 @@ def calculate_diff(proc_data_dict,
     ds1 = proc_data_dict[nametag]
 
     if ((ds2 is not None) and (ds1 is not None)):
-        endvals2 = ds2[varname].isel(time=range((end_yr-10)*12,
-                                                (end_yr+10)*12)).groupby('time.year').mean(dim='time')
-        endvals1 = ds1[varname].isel(time=range((end_yr-10)*12,
-                                                (end_yr+10)*12)).groupby('time.year').mean(dim='time')
+        if month_filter is not None:
+            ds2 = ds2.where(ds2['time.month']==month_filter,drop=True)
+            ds1 = ds1.where(ds1['time.month']==month_filter,drop=True)
+            endvals2 = ds2[varname].isel(time=range((end_yr-10),
+                                                    (end_yr+10))).groupby('time.year').mean(dim='time')
+            endvals1 = ds1[varname].isel(time=range((end_yr-10),
+                                                    (end_yr+10))).groupby('time.year').mean(dim='time')
+            delta = endvals1 - endvals2
+            
+        else:
+            endvals2 = ds2[varname].isel(time=range((end_yr-10)*12,
+                                                    (end_yr+10)*12)).groupby('time.year').mean(dim='time')
+            endvals1 = ds1[varname].isel(time=range((end_yr-10)*12,
+                                                    (end_yr+10)*12)).groupby('time.year').mean(dim='time')
 
-        delta = endvals1 - endvals2
+            delta = endvals1 - endvals2
     else:
         delta = None
     return delta
@@ -121,7 +132,8 @@ def combine_models(proc_data_dict,
                    multi_model_sum,
                    positive_change_count,
                    negative_change_count,
-                   cmip_names=CMIP_NAMES):
+                   cmip_names=CMIP_NAMES,
+                   month_filter=None):
     """Add docstring"""
     num_models_with_data = 0
     ind = 0
@@ -140,7 +152,8 @@ def combine_models(proc_data_dict,
                                        runname2,
                                        runname1,
                                        varname,
-                                       end_yr)
+                                       end_yr,
+                                       month_filter)
                 if delta is not None:
                     model_data = delta.mean(dim='year')
 
@@ -175,14 +188,16 @@ def combine_models(proc_data_dict,
                                         runname2,
                                         runname1,
                                         varname,
-                                        end_yr)
+                                        end_yr,
+                                        month_filter)
                 delta2 = calculate_diff(proc_data_dict,
                                         cmipchoice,
                                         modelname,
                                         runname4,
                                         runname3,
                                         varname,
-                                        end_yr)
+                                        end_yr,
+                                        month_filter)
                 if (delta1 is not None) and (delta2 is not None):
                     model_data = delta1.mean(dim='year') - delta2.mean(dim='year')
 
@@ -212,7 +227,7 @@ def combine_models(proc_data_dict,
             negative_change_count, num_models_with_data]
 
 def get_mm_mean(proc_data_dict, varname, end_yr, change_cutoff,
-                runname_inds, cmip_names=CMIP_NAMES):
+                runname_inds, cmip_names=CMIP_NAMES, month_filter=None):
     """ Add docstring"""
     if len(cmip_names) > 1:
         model_list = get_CMIP_info.get_modelnames_short('CMIP5and6')
@@ -243,7 +258,8 @@ def get_mm_mean(proc_data_dict, varname, end_yr, change_cutoff,
                                             negative_change_count=negative_change_count,
                                             model_list=model_list,
                                             runname_inds=runname_inds,
-                                            cmip_names=cmip_names)
+                                            cmip_names=cmip_names,
+                                            month_filter=month_filter)
 
     return [ds_all_models, multi_model_sum, positive_change_count,
             negative_change_count, num_models_with_data]
