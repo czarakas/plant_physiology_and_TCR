@@ -6,9 +6,12 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 from cartopy.util import add_cyclic_point
 
-def quick_map(mapdata, lat, lon, title=None, cb_ttl=None,
-              cmap=None, clim=None, filepath=None, sighatch=False,
-              p=None, sigmask=None, markerstyle='x', markersize=0.3, alpha_choice=0.8,norm=None):
+def quick_map(mapdata, lat, lon, 
+              title=None, cb_ttl=None,
+              cmap=plt.cm.viridis, clim=None, norm=None, 
+              contours=False, color_interval=0.2, extend_choice='both', cbar_inds=None, clevels=None,
+              filepath=None, 
+              sighatch=False, p=None, sigmask=None, markerstyle='x', markersize=0.3, alpha_choice=0.8):
     """ Creates map """
 
     fig = plt.figure(figsize=(12, 9))
@@ -19,18 +22,28 @@ def quick_map(mapdata, lat, lon, title=None, cb_ttl=None,
 
     cyclic_data, cyclic_lons = add_cyclic_point(mapdata, coord=lon)
 
-    if norm:
-        cs = plt.pcolormesh(cyclic_lons, lat, cyclic_data,
-                            transform=ccrs.PlateCarree())
+    if contours:
+        if clevels is None:
+            if clim:
+                clevels= np.arange(clim[0],clim[1],color_interval)
+                cs = plt.contourf(cyclic_lons, lat, cyclic_data, clevels, cmap = cmap, extend=extend_choice,
+                                  transform=ccrs.PlateCarree())#, vmin=-1.5, vmax=1.5)
+            else:
+                cs = plt.contourf(cyclic_lons, lat, cyclic_data, cmap = cmap,
+                                  transform=ccrs.PlateCarree())
+        else:
+            cs = plt.contourf(cyclic_lons, lat, cyclic_data, clevels, cmap = cmap, extend=extend_choice,
+                                  transform=ccrs.PlateCarree())
     else:
-        cs = plt.pcolormesh(cyclic_lons, lat, cyclic_data,
-                            transform=ccrs.PlateCarree(), norm=norm)
+        if norm:
+            cs = plt.pcolormesh(cyclic_lons, lat, cyclic_data,
+                                transform=ccrs.PlateCarree())
+        else:
+            cs = plt.pcolormesh(cyclic_lons, lat, cyclic_data,
+                                transform=ccrs.PlateCarree(), norm=norm)
 
     # Choose your colormap
-    if cmap:
-        plt.set_cmap(cmap)
-    else:
-        plt.set_cmap(plt.cm.viridis)
+    plt.set_cmap(cmap)
 
     if sighatch:
         cyclic_sig, cyclic_lons = add_cyclic_point(sigmask, coord=lon)
@@ -58,9 +71,14 @@ def quick_map(mapdata, lat, lon, title=None, cb_ttl=None,
         plt.clim(clim)
         cs.set_clim(clim[0], clim[1])
         cs.set_clim(clim)
+        
 
-    cbar = plt.colorbar(ax=ax, orientation='horizontal',
-                        extend='both', pad=.02, shrink=0.9, norm=norm)
+    if cbar_inds is not None:
+        cbar = plt.colorbar(ax=ax, orientation='horizontal',
+                        extend='both', pad=.02, shrink=0.9, ticks=cbar_inds)
+    else:
+        cbar = plt.colorbar(ax=ax, orientation='horizontal',
+                        extend='both', pad=.02, shrink=0.9)
     cbar.ax.tick_params(labelsize=14)
 
     if clim:

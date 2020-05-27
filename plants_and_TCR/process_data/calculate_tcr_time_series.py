@@ -20,7 +20,7 @@ DIR_TCR_DICT = directory_information.DIR_DATA+'processed_data/'
 CDICT = pickle.load(open(DIR_CMIP_DICTS+'cmip_dict.pickle', "rb"))
 CDICT_NAMES = params.CDICT_NAMES
 DEFAULT_VARNAME='tas'
-modelnames_short = get_CMIP_info.get_modelnames_short('CMIP5and6')
+MODELNAMES_SHORT = get_CMIP_info.get_modelnames_short('CMIP5and6')
 pi_adjustments = get_CMIP_info.get_PI_adjustment('CMIP5and6')
 
 def get_nametag_tcr_dict(varname, runname, cdict_name, modelname):
@@ -59,10 +59,10 @@ def get_ds_for_tcr_type(tcr_type, modelname, varname):
         
     return ds
 
-def calculate_tcr(ds_original, tcr_type, average_type, modelname, varname, recalculate_TCRs=True):
+def calculate_tcr(ds_original, tcr_type, average_type, modelname, varname, recalculate_TCRs=True, modelname_list=MODELNAMES_SHORT):
     """Add doc string"""
     
-    model_ind = modelnames_short.index(modelname)
+    model_ind = modelname_list.index(modelname)
     pi_adjustment = pi_adjustments[model_ind]
     if recalculate_TCRs:
         save_calculation=True
@@ -100,13 +100,16 @@ def calculate_tcr(ds_original, tcr_type, average_type, modelname, varname, recal
     return var_change_1d
 
 def create_tcr_datasets(tcr_types, average_types,
-                        varname=DEFAULT_VARNAME, save_tcr_dict=True, recalculate_TCRs=True):
+                        varname=DEFAULT_VARNAME, save_tcr_dict=True, recalculate_TCRs=True, modelname_list=None):
     """Add docstring"""
     tcr_dict_1d = dict()
 
     # loop through all cdict types
     for cdict_name in CDICT_NAMES:
-        modelnames = get_CMIP_info.get_modelnames_short(cdict_name)
+        if modelname_list==None:
+            modelnames = get_CMIP_info.get_modelnames_short(cdict_name)
+        else:
+            modelnames=modelname_list
 
         # loop through all models
         for modelname in modelnames:
@@ -124,7 +127,8 @@ def create_tcr_datasets(tcr_types, average_types,
                     if ds is not None:
                         # Calculate TCR time series
                         var_change_1d = calculate_tcr(ds, tcr_type, average_type,
-                                                      modelname, varname, recalculate_TCRs)
+                                                      modelname, varname, 
+                                                      recalculate_TCRs, modelname_list=modelname_list)
 
                         # Save to dictionary
                         nametag = modelname+'_'+tcr_type+'_'+varname+'_'+average_type

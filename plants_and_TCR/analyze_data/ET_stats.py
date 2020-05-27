@@ -167,7 +167,9 @@ def combine_models(proc_data_dict,
     return ds_all_models
 
 def get_mm_mean(proc_data_dict, varname, end_yr, runname_inds,
-                cmip_names=CMIP_NAMES, delta_or_baseline='Delta'):
+                cmip_names=CMIP_NAMES, delta_or_baseline='Delta',
+                cmipchoice_init='CMIP5', modelname_init='CanESM2',
+               runname_init='1pctCO2'):
     """ Add docstring"""
     if len(cmip_names) > 1:
         model_list = get_CMIP_info.get_modelnames_short('CMIP5and6')
@@ -175,13 +177,12 @@ def get_mm_mean(proc_data_dict, varname, end_yr, runname_inds,
         model_list = get_CMIP_info.get_modelnames_short(cmip_names[0])
 
     ds_all_models = initialize_multimodel_mean_array(proc_data_dict=proc_data_dict,
-                                                     cmipchoice='CMIP5',
-                                                     modelname='CanESM2',
-                                                     runname='1pctCO2',
+                                                     cmipchoice=cmipchoice_init,
+                                                     modelname=modelname_init,
+                                                     runname=runname_init,
                                                      varname=varname,
                                                      model_list=model_list,
                                                      end_yr=end_yr)
-
     ds_all_models = combine_models(proc_data_dict=proc_data_dict,
                                    varname=varname,
                                    end_yr=end_yr,

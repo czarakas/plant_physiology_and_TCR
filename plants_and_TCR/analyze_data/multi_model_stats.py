@@ -40,23 +40,43 @@ def initialize_multimodel_mean_array(proc_data_dict,
     ds_out = xr.Dataset({'lat': ds_grid['lat'],
                          'lon': ds_grid['lon']})
     grid_dims = np.shape(ds_grid[varname].mean(dim='time').values)
-    multi_model_sum = xr.DataArray(np.zeros(grid_dims),
-                                   dims={'lat': ds_grid['lat'], 'lon':ds_grid['lon']})
-    positive_change_count = xr.DataArray(np.zeros(grid_dims),
-                                         dims={'lat': ds_grid['lat'], 'lon':ds_grid['lon']})
-    negative_change_count = xr.DataArray(np.zeros(grid_dims),
-                                         dims={'lat': ds_grid['lat'], 'lon':ds_grid['lon']})
+    if varname=='ta':
+        multi_model_sum = xr.DataArray(np.zeros(grid_dims),
+                                       dims={'plev':ds_grid['plev'],
+                                             'lat': ds_grid['lat'], 'lon':ds_grid['lon']
+                                             })
+        positive_change_count = xr.DataArray(np.zeros(grid_dims),
+                                             dims={'plev':ds_grid['plev'],
+                                                   'lat': ds_grid['lat'], 'lon':ds_grid['lon']})
+        negative_change_count = xr.DataArray(np.zeros(grid_dims),
+                                             dims={'plev':ds_grid['plev'],
+                                                   'lat': ds_grid['lat'], 'lon':ds_grid['lon']})
+    else:
+        multi_model_sum = xr.DataArray(np.zeros(grid_dims),
+                                       dims={'lat': ds_grid['lat'], 'lon':ds_grid['lon']})
+        positive_change_count = xr.DataArray(np.zeros(grid_dims),
+                                             dims={'lat': ds_grid['lat'], 'lon':ds_grid['lon']})
+        negative_change_count = xr.DataArray(np.zeros(grid_dims),
+                                             dims={'lat': ds_grid['lat'], 'lon':ds_grid['lon']})
 
     # Make dataset for all models
     ds_all_models = ds_grid.mean(dim='time')
     grid_dims_geo = np.shape(ds_all_models[varname].values)
     ds_all_models = ds_all_models.drop(varname)
     ds_all_models = ds_all_models.assign_coords(modelname=model_list)
-    grid_dims = [grid_dims_geo[0], grid_dims_geo[1], len(model_list)]
-    var_array = xr.DataArray(np.zeros(grid_dims),
-                             dims={'lat': ds_all_models['lat'],
-                                   'lon':ds_all_models['lon'],
-                                   'modelname':ds_all_models['modelname']})
+    if varname=='ta':
+        grid_dims = [grid_dims_geo[0], grid_dims_geo[1],  grid_dims_geo[2], len(model_list)]
+        var_array = xr.DataArray(np.zeros(grid_dims),
+                                 dims={'plev':ds_grid['plev'],
+                                       'lat': ds_all_models['lat'],
+                                       'lon':ds_all_models['lon'],
+                                       'modelname':ds_all_models['modelname']})
+    else:
+        grid_dims = [grid_dims_geo[0], grid_dims_geo[1], len(model_list)]
+        var_array = xr.DataArray(np.zeros(grid_dims),
+                                 dims={'lat': ds_all_models['lat'],
+                                       'lon':ds_all_models['lon'],
+                                       'modelname':ds_all_models['modelname']})
     var_array = var_array.where(var_array > 0)
     ds_all_models[varname] = var_array
 
@@ -137,16 +157,16 @@ def combine_models(proc_data_dict,
     """Add docstring"""
     num_models_with_data = 0
     ind = 0
-    for cmipchoice in cmip_names:
-        model_list = get_CMIP_info.get_modelnames_short(cmipchoice)
+    
+    cmipchoice=cmip_names[0]
 
-        if len(runname_inds) == 2:
-            runname1 = runnames_all[runname_inds[0]] #1pctCO2-rad
-            runname2 = runnames_all[runname_inds[1]] #1pctCO2
-            for modelname in model_list:
-                print(modelname)
+    if len(runname_inds) == 2:
+        runname1 = runnames_all[runname_inds[0]] #1pctCO2-rad
+        runname2 = runnames_all[runname_inds[1]] #1pctCO2
+        for modelname in model_list:
+            print(modelname)
 
-                delta = calculate_diff(proc_data_dict,
+            delta = calculate_diff(proc_data_dict,
                                        cmipchoice,
                                        modelname,
                                        runname2,
@@ -154,35 +174,35 @@ def combine_models(proc_data_dict,
                                        varname,
                                        end_yr,
                                        month_filter)
-                if delta is not None:
-                    model_data = delta.mean(dim='year')
+            if delta is not None:
+                model_data = delta.mean(dim='year')
 
-                    [positive_change_count,
-                     negative_change_count] = increment_counts(model_data,
+                [positive_change_count,
+                 negative_change_count] = increment_counts(model_data,
                                                                change_cutoff,
                                                                positive_change_count,
                                                                negative_change_count)
 
-                    #### Add model to dataset
-                    if ds_all_models['modelname'][ind] == modelname:
-                        ds_all_models[varname][:, :, ind] = model_data
-                    else:
-                        print('problem!')
-                    #ds_all_models[modelname]=model_data
-
-                    ########Update all-model arrays
-                    multi_model_sum = multi_model_sum + model_data
-                    num_models_with_data = num_models_with_data + 1
+                #### Add model to dataset
+                if ds_all_models['modelname'][ind] == modelname:
+                    ds_all_models[varname][:, :, ind] = model_data
                 else:
-                    print('No data for '+modelname)
-                ind = ind+1
-        elif len(runname_inds) == 4:
-            runname1 = runnames_all[runname_inds[0]] #1pctCO2-rad
-            runname2 = runnames_all[runname_inds[1]] #1pctCO2
-            runname3 = runnames_all[runname_inds[2]]
-            runname4 = runnames_all[runname_inds[3]]
-            for modelname in model_list:
-                delta1 = calculate_diff(proc_data_dict,
+                    print('problem!')
+                #ds_all_models[modelname]=model_data
+
+                ########Update all-model arrays
+                multi_model_sum = multi_model_sum + model_data
+                num_models_with_data = num_models_with_data + 1
+            else:
+                print('No data for '+modelname)
+            ind = ind+1
+    elif len(runname_inds) == 4:
+        runname1 = runnames_all[runname_inds[0]] #1pctCO2-rad
+        runname2 = runnames_all[runname_inds[1]] #1pctCO2
+        runname3 = runnames_all[runname_inds[2]]
+        runname4 = runnames_all[runname_inds[3]]
+        for modelname in model_list:
+            delta1 = calculate_diff(proc_data_dict,
                                         cmipchoice,
                                         modelname,
                                         runname2,
@@ -190,7 +210,7 @@ def combine_models(proc_data_dict,
                                         varname,
                                         end_yr,
                                         month_filter)
-                delta2 = calculate_diff(proc_data_dict,
+            delta2 = calculate_diff(proc_data_dict,
                                         cmipchoice,
                                         modelname,
                                         runname4,
@@ -198,28 +218,28 @@ def combine_models(proc_data_dict,
                                         varname,
                                         end_yr,
                                         month_filter)
-                if (delta1 is not None) and (delta2 is not None):
-                    model_data = delta1.mean(dim='year') - delta2.mean(dim='year')
+            if (delta1 is not None) and (delta2 is not None):
+                model_data = delta1.mean(dim='year') - delta2.mean(dim='year')
 
-                    [positive_change_count,
-                     negative_change_count] = increment_counts(model_data,
+                [positive_change_count,
+                 negative_change_count] = increment_counts(model_data,
                                                                change_cutoff,
                                                                positive_change_count,
                                                                negative_change_count)
 
-                    #### Add model to dataset
-                    if ds_all_models['modelname'][ind] == modelname:
-                        ds_all_models[varname][:, :, ind] = model_data
-                    else:
-                        print('problem!')
-                    #ds_all_models[modelname]=model_data
-
-                    ########Update all-model arrays
-                    multi_model_sum = multi_model_sum + model_data
-                    num_models_with_data = num_models_with_data + 1
+                #### Add model to dataset
+                if ds_all_models['modelname'][ind] == modelname:
+                    ds_all_models[varname][:, :, ind] = model_data
                 else:
-                    print('No data for '+modelname)
-                ind = ind+1
+                    print('problem!')
+                #ds_all_models[modelname]=model_data
+
+                ########Update all-model arrays
+                multi_model_sum = multi_model_sum + model_data
+                num_models_with_data = num_models_with_data + 1
+            else:
+                print('No data for '+modelname)
+            ind = ind+1
 
     multi_model_sum = multi_model_sum/num_models_with_data
     negative_change_count = -negative_change_count
@@ -227,20 +247,24 @@ def combine_models(proc_data_dict,
             negative_change_count, num_models_with_data]
 
 def get_mm_mean(proc_data_dict, varname, end_yr, change_cutoff,
-                runname_inds, cmip_names=CMIP_NAMES, month_filter=None):
+                runname_inds, cmip_names=CMIP_NAMES, month_filter=None,
+               cmip_init='CMIP5',modelname_init='CanESM2',runname_init='1pctCO2', modelnames=None):
     """ Add docstring"""
-    if len(cmip_names) > 1:
-        model_list = get_CMIP_info.get_modelnames_short('CMIP5and6')
-    elif len(cmip_names) == 1:
-        model_list = get_CMIP_info.get_modelnames_short(cmip_names[0])
+    if modelnames==None:
+        if len(cmip_names) > 1:
+            model_list = get_CMIP_info.get_modelnames_short('CMIP5and6')
+        elif len(cmip_names) == 1:
+            model_list = get_CMIP_info.get_modelnames_short(cmip_names[0])
+    else:
+        model_list = modelnames
 
     [ds_all_models,
      multi_model_sum,
      positive_change_count,
      negative_change_count] = initialize_multimodel_mean_array(proc_data_dict=proc_data_dict,
-                                                               cmipchoice='CMIP5',
-                                                               modelname='CanESM2',
-                                                               runname='1pctCO2',
+                                                               cmipchoice=cmip_init,
+                                                               modelname=modelname_init,
+                                                               runname=runname_init,
                                                                varname=varname,
                                                                model_list=model_list)
 

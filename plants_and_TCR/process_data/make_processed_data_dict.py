@@ -27,7 +27,7 @@ def get_nametag(varname, runname, cdict_name, modelname):
     return nametag
 
 def create_variable_dictionary(runnames, varname, cdict_names=CDICT_NAMES,
-                               input_path=OUTPUT_PATH):
+                               input_path=OUTPUT_PATH, modelnames=None):
     """Creates dictionary with xarrays of all models and experiments for the
     variable of interest"""
 
@@ -38,8 +38,10 @@ def create_variable_dictionary(runnames, varname, cdict_names=CDICT_NAMES,
     for cdict_name in cdict_names:
 
         # get modelnames and runnames for CMIP phase
-        [_, _,
-         modelnames_short] = get_CMIP_info.get_CMIP_info(cdict_name)
+        if modelnames==None:
+            modelnames_short = get_CMIP_info.get_modelnames_short(cdict_name)
+        else:
+            modelnames_short = modelnames
 
         # loop through models
         for _, modelname in enumerate(modelnames_short):

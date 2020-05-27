@@ -3,6 +3,7 @@ import pickle
 import matplotlib.pyplot as plt
 from cartopy.util import add_cyclic_point
 import cartopy.crs as ccrs
+import numpy as np
 
 from plants_and_TCR.analyze_data import grab_cmip_dataset
 from plants_and_TCR.analysis_parameters import get_CMIP_info
@@ -21,9 +22,9 @@ runnames_all = ['1pctCO2-rad','1pctCO2-bgc','1pctCO2','piControl']
 def plot_allmaps_run(runname_inds,
                      varname,
                      end_yr=70,
-                     clim=None,
+                     clim=None, cmap=None,
+                     contours=False, color_interval=0.2, extend_choice='both',
                      unitname=None,
-                     cmap=None,
                      filename=None,
                      mask_type=None,
                      show_fig=True):
@@ -65,6 +66,7 @@ def plot_allmaps_run(runname_inds,
                     vals2['year'] = vals2['year']-PIadjustment[md]
                 delta = vals1-vals2
                 delta = delta.isel(year=range((end_yr-10), (end_yr+10)))
+                #print(np.shape(delta['year'].values))
                 
                 if mask_type == 'land':
                     land_area_mask = cmip_dict[modelname +'_' +'sftlf']['sftlf'].values/100
@@ -87,8 +89,18 @@ def plot_allmaps_run(runname_inds,
                 ax.set_global()
                 cyclic_data, cyclic_lons = add_cyclic_point(mapdata, coord=lon)
 
-                # plot our data:
-                cs = plt.pcolormesh(cyclic_lons, lat, cyclic_data, transform=ccrs.PlateCarree())
+                if contours:
+                    if clim:
+                        clevels= np.arange(clim[0],clim[1],color_interval)
+                        cs = plt.contourf(cyclic_lons, lat, cyclic_data, 
+                                          clevels, cmap = cmap, extend=extend_choice,
+                                          transform=ccrs.PlateCarree())#, vmin=-1.5, vmax=1.5)
+                    else:
+                        cs = plt.contourf(cyclic_lons, lat, cyclic_data, cmap = cmap,
+                                          transform=ccrs.PlateCarree())
+                else:
+                    # plot our data:
+                    cs = plt.pcolormesh(cyclic_lons, lat, cyclic_data, transform=ccrs.PlateCarree())
 
 
                 # Choose your colormap

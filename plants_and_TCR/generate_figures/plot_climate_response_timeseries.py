@@ -32,8 +32,10 @@ def plot_climate_response_timeseries(averageType,
                                      smoothing = True,
                                      varname=DEFAULT_VARNAME,
                                      legend_on=True,
+                                     num_legend_cols=None,
                                      filepath=None,
-                                    fig_size=[45,30]):
+                                     x_axis_CO2=True,
+                                     fig_size=[45,30]):
     """Creates time series with CO2 concentration on x-axis
     and average temperature change on y-axis"""
     plt.rcParams.update({'font.size': FONTSIZE})
@@ -43,12 +45,18 @@ def plot_climate_response_timeseries(averageType,
     fig = plt.figure(figsize=(fig_size[0], fig_size[1]))
     ax1 = plt.axes()
     linewidth = 9
+    
+    
+    if x_axis_CO2:
+        x_time_series=CO2_1PCTCO2
+    else:
+        x_time_series=np.arange(0,200)
 
     ####################### Make rectangles indicating averaging period ############################
-    ax1.plot([CO2_1PCTCO2[end_yr], CO2_1PCTCO2[end_yr]], [y1, y2], linestyle='-', color='gray')
-    ax1.plot([CO2_1PCTCO2[x1], CO2_1PCTCO2[x2_axis]], [0, 0], linestyle='-', color='gray')
-    ax1.add_patch(mpl.patches.Rectangle((CO2_1PCTCO2[end_yr-10], y1),
-                                        (CO2_1PCTCO2[end_yr+10] - CO2_1PCTCO2[end_yr-10]),
+    ax1.plot([x_time_series[end_yr], x_time_series[end_yr]], [y1, y2], linestyle='-', color='gray')
+    ax1.plot([x_time_series[x1], x_time_series[x2_axis]], [0, 0], linestyle='-', color='gray')
+    ax1.add_patch(mpl.patches.Rectangle((x_time_series[end_yr-9], y1),
+                                        (x_time_series[end_yr+10] - x_time_series[end_yr-10]),
                                         y2-y1, fill=True, color='lightgray'))
 
     for cdict_name in CDICT_NAMES:
@@ -70,7 +78,11 @@ def plot_climate_response_timeseries(averageType,
                 plotvals_unsmoothed = ds_annual.values
 
                 plotvals_smoothed = movingaverage.movingaverage(plotvals_unsmoothed, smooth_len)
-                co2_smoothed = movingaverage.movingaverage(CO2_1PCTCO2[:, 0], smooth_len)
+                if x_axis_CO2:
+                    co2_smoothed = movingaverage.movingaverage(x_time_series[:, 0], smooth_len)
+                else:
+                    co2_smoothed = movingaverage.movingaverage(x_time_series, smooth_len)
+                
 
                 if smoothing:
                     len_time = np.size(plotvals_smoothed)
@@ -80,11 +92,18 @@ def plot_climate_response_timeseries(averageType,
                         len_time = len_time
                     xvals = co2_smoothed[0:len_time]
                     yvals = plotvals_smoothed[0:len_time]
-                    ax1.plot(xvals, yvals,
-                             color=colors[m],
-                             linestyle=linestyle,
-                             label=modelname,
-                             linewidth=linewidth)#+', TCR= '+str(np.round(this_TCR,2)))
+                    if modelname=='GFDL-ESM2M':
+                        ax1.plot(xvals[0:70], yvals[0:70],
+                                 color=colors[m],
+                                 linestyle=linestyle,
+                                 label=modelname,
+                                 linewidth=linewidth)#+', TCR= '+str(np.round(this_TCR,2)))
+                    else:
+                        ax1.plot(xvals, yvals,
+                                 color=colors[m],
+                                 linestyle=linestyle,
+                                 label=modelname,
+                                 linewidth=linewidth)#+', TCR= '+str(np.round(this_TCR,2)))
                 else:
                     len_time = np.size(plotvals)
                     if len_time > x2:
@@ -104,18 +123,25 @@ def plot_climate_response_timeseries(averageType,
                     value_sum = value_sum+yvals[0:121]
                     num_ind=num_ind+1
         ax1.plot(xvals[0:121], value_sum/num_ind,
-                 color='black',linestyle=linestyle,linewidth=linewidth*2,alpha=0.7)
+                 color='black',linestyle=linestyle,linewidth=linewidth*2,alpha=0.7, label=cdict_name+' Mean')
 
     # Format Figure
     if legend_on:
-        ax1.legend(loc='upper left', bbox_transform='None',
+        if num_legend_cols==None:
+            ax1.legend(loc='upper left', bbox_transform='None',
                    fontsize=FONTSIZE*0.8, ncol=4, framealpha=1) #'lower right'
+        else:
+            ax1.legend(loc='upper left', bbox_transform='None',
+                   fontsize=FONTSIZE*0.8, ncol=num_legend_cols, framealpha=1)
     plt.grid()
     plt.ylim(ylims)
     plt.yticks(np.arange(y1, y2, dt))
-    plt.xlim([CO2_1PCTCO2[x1], CO2_1PCTCO2[x2_axis]])
+    plt.xlim([x_time_series[x1], x_time_series[x2_axis]])
     plt.ylabel('Change in Temperature', wrap=True)
-    plt.xlabel('CO$_2$ Concentration (ppm)')
+    if x_axis_CO2:
+        plt.xlabel('CO$_2$ Concentration (ppm)')
+    else:
+        plt.xlabel('Year')
     plt.show()
     
     

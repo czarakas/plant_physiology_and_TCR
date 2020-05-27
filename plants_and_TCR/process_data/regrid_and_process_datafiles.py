@@ -29,7 +29,7 @@ def get_nametag(varname, runname, cdict_name, modelname):
     nametag = varname+'_'+runname+'_'+cdict_name+'_'+modelname
     return nametag
 
-def create_reference_grid(modelname, runname, varname):
+def create_reference_grid(modelname, runname, varname='tas'):
     """Creates reference grid to which all model output will be regridded"""
     thisdata = grab_cmip_dataset.grab_cmip_dataset(CDICT,
                                                    modelname,

@@ -15,24 +15,40 @@ import xarray as xr
 
 # data path location
 DATAPATH = '/eos9/czarakas/Data/CMIP6/'
+DATAPATH_NOT_C4MIP = '/eos9/czarakas/Data/CMIP6/Models_without_C4MIP_data/'
 
 #----- List of all of the models
-MODELLIST = ['BCC-CSM2-MR', 'CanESM5', 'CESM2',
+MODELLIST = ['ACCESS-CM2','AWI-CM-1-1-MR','BCC-ESM1','CAMS-CSM1-0',
+             'CESM2-WACCM','CNRM-CM6-1', 'EC-Earth3','FGOALS-f3-L',
+             'HadGEM3-GC31-MM', 'INM-CM4-8', 'INM-CM5-0', 'MCM-UA-1-0',
+             'MPI-ESM1-2-HR','NESM3','NorCPM1','NorESM2-MM',
+             'SAM0-UNICON', 'ACCESS-CM2','E3SM-1-0','EC-Earth3-Veg',
+             'GFDL-CM4', 'GISS-E2-1-H','HadGEM3-GC31-LL','MIROC6',
+             
+             'BCC-CSM2-MR', 'CanESM5', 'CESM2',
              'CNRM-ESM2-1', 'GFDL-ESM4', 'GISS-E2-1-G',
              'IPSL-CM6A-LR', 'MIROC-ES2L', 'MRI-ESM2-0', 'UKESM1-0-LL',
-            'ACCESS-ESM1-5','NorESM2-LM','MPI-ESM1-2-LR']
+             'ACCESS-ESM1-5','NorESM2-LM','MPI-ESM1-2-LR']
+
+MODELLIST_SHARED_SERVER =['ACCESS-CM2','AWI-CM-1-1-MR','BCC-ESM1','CAMS-CSM1-0','CESM2-WACCM','CNRM-CM6-1',
+             'EC-Earth3','FGOALS-f3-L', 'HadGEM3-GC31-MM', 'INM-CM4-8', 'INM-CM5-0',
+             'MCM-UA-1-0','MPI-ESM1-2-HR','NESM3','NorCPM1','NorESM2-MM','SAM0-UNICON',
+             'ACCESS-CM2','E3SM-1-0','EC-Earth3-Veg','EC-Earth3-Veg','GFDL-CM4',
+             'GISS-E2-1-H','HadGEM3-GC31-LL','MIROC6']
 
 RUNNAMELIST = ['1pctCO2-bgc', '1pctCO2-rad', '1pctCO2', 'piControl']#'piSST-4xCO2-rad']
 
 # list of all of the variables wanted
-VARLIST = ['hurs', 'huss', 'clt',
+VARLIST = ['hurs', 'huss', 'clt', 'prw', 'hus',
            'lai', 'gpp',
            'evspsbl', 'evspsblpot', 'tran', 'pr',
            'rlds', 'rsds', 'rlus', 'rsus', 'hfls', 'hfss',
            'rsdscs', 'rsuscs', 'rldscs',
            'rsdt', 'rlut', 'rsut',
-           'tas', 'ts',
-           'vegHeight', 'ps']
+           'rsutcs','rlutcs',
+           'tas', 'ts', 'ta',
+           'vegHeight', 'ps',
+           'zg','va','vas','ua','uas','wap','psl']
 
 # weights for months
 MONTHWEIGHTS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -51,7 +67,10 @@ def load_dictionary(modellist=MODELLIST, runnlist=RUNNAMELIST, varlist=VARLIST, 
         #-- Area of gridcells
         varname = 'areacella'
         nametag = modelname +'_' +varname
-        filepath = datapath +modelname+'/'+varname +'_*' +modelname +'_' +'*'
+        if modelname in MODELLIST_SHARED_SERVER:
+            filepath = DATAPATH_NOT_C4MIP +modelname+'/'+varname +'_*' +modelname +'_' +'*'
+        else:
+            filepath = datapath +modelname+'/'+varname +'_*' +modelname +'_' +'*'
        # print(filepath)
         filenamelist = sorted(glob.glob(filepath)) # find the combination of all of these lists
         if len(filenamelist) > 0:
@@ -64,7 +83,7 @@ def load_dictionary(modellist=MODELLIST, runnlist=RUNNAMELIST, varlist=VARLIST, 
         #-- Land fraction
         varname = 'sftlf' # land fraction
         nametag = modelname +'_' +varname
-        filepath = DATAPATH +modelname+'/'+varname +'_*' +modelname +'_' +'*'
+        filepath = datapath +modelname+'/'+varname +'_*' +modelname +'_' +'*'
         filenamelist = sorted(glob.glob(filepath)) # find the combination of all of these lists
         if len(filenamelist) > 0:
             print('variable: ' +varname)
@@ -93,8 +112,12 @@ def load_dictionary(modellist=MODELLIST, runnlist=RUNNAMELIST, varlist=VARLIST, 
             for v, varname in enumerate(varlist):
                 #print(filepath)
                 nametag = modelname +'_' +runname +'_' +varname
-                filepath = (DATAPATH +modelname+'/'+varname+'/'+
-                            varname +'_*' +modelname +'_' +runname +'_*') #r1i1p1*'
+                if modelname in MODELLIST_SHARED_SERVER:
+                    filepath = (DATAPATH_NOT_C4MIP+modelname+'/'+varname+'/'+
+                                varname +'_*' +modelname +'_' +runname +'_*')
+                else:
+                    filepath = (DATAPATH +modelname+'/'+varname+'/'+
+                                varname +'_*' +modelname +'_' +runname +'_*') #r1i1p1*'
 
                 # find the combination of all of these lists
                 filenamelist = sorted(glob.glob(filepath))

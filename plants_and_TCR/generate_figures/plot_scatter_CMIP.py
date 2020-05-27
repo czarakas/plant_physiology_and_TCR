@@ -26,7 +26,7 @@ rc('font',**{'family':'sans-serif','sans-serif':['Arial']})
 def plot_scatter_CMIP(xvals, yvals, xlims, ylims,
                       one_to_one_line=False, fig_dims=FIGSIZE, markersize=MARKERSIZE,
                       xlabel=None, ylabel=None, filepath=None, legend_on=False, 
-                      filled=True, dt=None, axes_on=False,cross_scalar=0.1):
+                      filled=True, dt=None, axes_on=False, cross_scalar='StdDev',ncols=1):
     xmin=xlims[0]
     xmax=xlims[1]
     ymin = ylims[0]
@@ -45,11 +45,26 @@ def plot_scatter_CMIP(xvals, yvals, xlims, ylims,
     multimodel_mean_yvals_CMIP5 = np.nanmean(yvals[0:CMIP6_CUTOFF])
     multimodel_mean_xvals_CMIP5 = np.nanmean(xvals[0:CMIP6_CUTOFF])
     
+    if cross_scalar=='StdDev':
+        multimodel_std_yvals_CMIP6 = np.nanstd(yvals[CMIP6_CUTOFF:100])
+        multimodel_std_xvals_CMIP6 = np.nanstd(xvals[CMIP6_CUTOFF:100])
+        multimodel_std_yvals_CMIP5 = np.nanstd(yvals[0:CMIP6_CUTOFF])
+        multimodel_std_xvals_CMIP5 = np.nanstd(xvals[0:CMIP6_CUTOFF])
+    else:
+        multimodel_std_xvals_CMIP6 = cross_scalar[0]
+        multimodel_std_yvals_CMIP6 = cross_scalar[1]
+        multimodel_std_xvals_CMIP5 = cross_scalar[2]
+        multimodel_std_yvals_CMIP5 = cross_scalar[3]
+    
     # Plot multi-model means
-    xrange = xmax-xmin
-    yrange = ymax-ymin
-    xlims_means = np.array([-cross_scalar*xrange, cross_scalar*xrange])
-    ylims_means = np.array([-cross_scalar*yrange, cross_scalar*yrange])
+    #xrange = xmax-xmin
+    #yrange = ymax-ymin
+    #xlims_means = np.array([-cross_scalar*xrange, cross_scalar*xrange])
+    #ylims_means = np.array([-cross_scalar*yrange, cross_scalar*yrange])
+    xlims_means_CMIP6 = np.array([-multimodel_std_xvals_CMIP6, multimodel_std_xvals_CMIP6])
+    ylims_means_CMIP6 = np.array([-multimodel_std_yvals_CMIP6, multimodel_std_yvals_CMIP6])
+    xlims_means_CMIP5 = np.array([-multimodel_std_xvals_CMIP5, multimodel_std_xvals_CMIP5])
+    ylims_means_CMIP5 = np.array([-multimodel_std_yvals_CMIP5, multimodel_std_yvals_CMIP5])
     
     if one_to_one_line:
         plt.plot(xlims, xlims,
@@ -60,24 +75,24 @@ def plot_scatter_CMIP(xvals, yvals, xlims, ylims,
         plt.plot([0,0], ylims,
                  color='silver', alpha=0.5, ls='-', linewidth=(LINEWIDTH+2)*2)
     
-    plt.plot(xlims_means+multimodel_mean_xvals_CMIP6,
+    plt.plot(xlims_means_CMIP6+multimodel_mean_xvals_CMIP6,
              [multimodel_mean_yvals_CMIP6, multimodel_mean_yvals_CMIP6],
              color='black', linestyle='-', linewidth=LINEWIDTH*2,
              alpha=ALPHA, label='CMIP6 Mean')
     plt.plot([multimodel_mean_xvals_CMIP6, multimodel_mean_xvals_CMIP6],
-             ylims_means+multimodel_mean_yvals_CMIP6, 
+             ylims_means_CMIP6+multimodel_mean_yvals_CMIP6, 
              color='black', linestyle='-', linewidth=LINEWIDTH*2, alpha=ALPHA)
-    plt.plot(xlims_means+multimodel_mean_xvals_CMIP5,
+    plt.plot(xlims_means_CMIP5+multimodel_mean_xvals_CMIP5,
              [multimodel_mean_yvals_CMIP5, multimodel_mean_yvals_CMIP5],
-             color='black',linestyle=':', linewidth=LINEWIDTH*1.5, alpha=ALPHA, label='CMIP5 Mean')
+             color='black',linestyle=(0,(1,0.75)), linewidth=LINEWIDTH*1.5, alpha=ALPHA, label='CMIP5 Mean')
     plt.plot([multimodel_mean_xvals_CMIP5, multimodel_mean_xvals_CMIP5],
-             ylims_means+multimodel_mean_yvals_CMIP5, 
-             color='black',linestyle=':', linewidth=LINEWIDTH*1.5, alpha=ALPHA)
+             ylims_means_CMIP5+multimodel_mean_yvals_CMIP5, 
+             color='black',linestyle=(0,(1,0.75)), linewidth=LINEWIDTH*1.5, alpha=ALPHA)
     
     # Plot points for each model
     for i in range(0,len(yvals)):
         plt.plot(xvals[i], yvals[i], label=MODELNAMES[i],
-                 marker=SYMBOLS[i], linestyle=LINESYMBOLS[i], linewidth=LINEWIDTH,
+                 marker=SYMBOLS[i], linestyle=LINESYMBOLS[i], linewidth=0,
                  color=COLORS[i], markersize=markersize, 
                  fillstyle=fillstyle_choice, markeredgewidth=MARKEREDGEWIDTH)
         
@@ -96,7 +111,7 @@ def plot_scatter_CMIP(xvals, yvals, xlims, ylims,
     if ylabel is not None:
         plt.ylabel(ylabel)
     if legend_on:
-        plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+        plt.legend(bbox_to_anchor=(1.01, 1), ncol=ncols, loc='upper left')
 
     
     # Save figure

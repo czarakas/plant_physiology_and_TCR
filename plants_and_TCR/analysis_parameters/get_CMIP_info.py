@@ -82,7 +82,7 @@ def get_line_style(cdict_name):
     if cdict_name == 'CMIP6':
         linestyle = '-'
     elif cdict_name == 'CMIP5':
-        linestyle = ':'
+        linestyle = ':' #':'
     elif cdict_name == 'CMIP5and6':
         len_cmip5 = get_num_models('CMIP5')
         len_cmip6 = get_num_models('CMIP6')
