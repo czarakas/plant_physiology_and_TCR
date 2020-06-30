@@ -36,7 +36,7 @@ MODELLIST_SHARED_SERVER =['ACCESS-CM2','AWI-CM-1-1-MR','BCC-ESM1','CAMS-CSM1-0',
              'ACCESS-CM2','E3SM-1-0','EC-Earth3-Veg','EC-Earth3-Veg','GFDL-CM4',
              'GISS-E2-1-H','HadGEM3-GC31-LL','MIROC6']
 
-RUNNAMELIST = ['1pctCO2-bgc', '1pctCO2-rad', '1pctCO2', 'piControl']#'piSST-4xCO2-rad']
+RUNNAMELIST = ['1pctCO2-bgc', '1pctCO2-rad', '1pctCO2', 'piControl', 'esm-piControl']#'piSST-4xCO2-rad']
 
 # list of all of the variables wanted
 VARLIST = ['hurs', 'huss', 'clt', 'prw', 'hus',
