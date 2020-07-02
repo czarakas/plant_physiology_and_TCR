@@ -61,7 +61,6 @@ def get_ds_for_tcr_type(tcr_type, modelname, varname):
 
 def calculate_tcr(ds_original, tcr_type, average_type, modelname, varname, recalculate_TCRs=True, modelname_list=MODELNAMES_SHORT):
     """Add doc string"""
-    
     model_ind = modelname_list.index(modelname)
     pi_adjustment = pi_adjustments[model_ind]
     if recalculate_TCRs:
@@ -91,16 +90,18 @@ def calculate_tcr(ds_original, tcr_type, average_type, modelname, varname, recal
         var_change_1d = ds_annual_global
     else:
         # Grab preindustrial baseline
-        [_, ds_annual_global_avg_linear] = calculate_pi_baseline.calculate_pi_for_model(modelname=modelname,
-                                                                                        average_type=average_type,
-                                                                                        save_calculation=save_calculation,
-                                                                                        use_calculated_value=use_calculated_value)
+        [_, 
+         ds_annual_global_avg_linear] = calculate_pi_baseline.calculate_pi_for_model(modelname=modelname,
+                                                                                     average_type=average_type,
+                                                                                     save_calculation=save_calculation,
+                                                                                use_calculated_value=use_calculated_value)
         var_change_1d = ds_annual_global - ds_annual_global_avg_linear
 
     return var_change_1d
 
 def create_tcr_datasets(tcr_types, average_types,
-                        varname=DEFAULT_VARNAME, save_tcr_dict=True, recalculate_TCRs=True, modelname_list=None):
+                        varname=DEFAULT_VARNAME, save_tcr_dict=True, 
+                        recalculate_TCRs=True, modelname_list=MODELNAMES_SHORT):
     """Add docstring"""
     tcr_dict_1d = dict()
 

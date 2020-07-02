@@ -9,13 +9,13 @@ Modified from code from Abby Swann.
 ### Import Libraries
 import glob
 import xarray as xr
-
+from plants_and_TCR.analysis_parameters import directory_information
 #-----------------------------------------------------------------------------------------
 ### List of models, runs, and variables
 
 # data path location
-DATAPATH_ORIGINAL = '/home/disk/eos3/aswann/Shared/Data/CMIP5_CCycle/'
-DATAPATH_NEW = '/home/disk/eos9/czarakas/Data/CMIP5/'
+DATAPATH_ORIGINAL = directory_information.DIR_DATA_RAW_CMIP5_1
+DATAPATH_NEW = directory_information.DIR_DATA_RAW_CMIP5_2
 
 #----- List of all of the models
 MODELLIST = ['MPI-ESM-LR', 'HadGEM2-ES', 'NorESM1-ME', 'bcc-csm1-1',
@@ -27,10 +27,10 @@ RUNNAMELIST = ['esmFixClim1', '1pctCO2', 'esmFdbk1', 'piControl', 'abrupt4xCO2']
 # other possible run names for which I have some data:
 # 'rcp45','esmFdbk2','esmrcp85','esmHistorical','esmControl'
 
-VARLIST = ['hfls', 'hfss', 'hurs', 'huss', 'ps', 'evspsbl', 'tas', 'ts',
-           'ps', 'pr', 'sfcWind', 'tran', 'gpp', 'lai', 'mrro', 'mrso', 'mrsls', 'rlds',
-           'rlus', 'rlut', 'rsds', 'rsdt', 'rsus', 'rsut', 'rldscs', 'rluscs', 'rsdscs',
-           'rsuscs', 'rsutcs', 'rlutcs', 'clt']
+VARLIST = ['hfls', 'hfss', 'evspsbl', 'tas', 'ts', 'tran', 'lai', 
+           'rlds', 'rlus', 'rsds', 'rsus', 
+           'rldscs', 'rluscs', 'rsdscs', 'rsuscs', 
+           'clt'] #'hurs', 'huss', 'ps', 'ps', 'pr', 'sfcWind', 'gpp', 'mrro', 'mrso', 'mrsls', 'rlut', 'rsdt','rsut','rsutcs', 'rlutcs'
 
 # weights for months
 MONTHWEIGHTS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
