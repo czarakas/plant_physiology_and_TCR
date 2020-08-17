@@ -1,3 +1,4 @@
+import numpy as np
 sperday=86400
 def grab_cmip_dataset(cdict, Mname,Rname,Vname):
     
