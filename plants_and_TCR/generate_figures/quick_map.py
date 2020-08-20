@@ -25,7 +25,7 @@ def quick_map(mapdata, lat, lon,
     if contours:
         if clevels is None:
             if clim:
-                clevels= np.arange(clim[0],clim[1],color_interval)
+                clevels= np.arange(clim[0],clim[1]+color_interval,color_interval)
                 cs = plt.contourf(cyclic_lons, lat, cyclic_data, clevels, cmap = cmap, extend=extend_choice,
                                   transform=ccrs.PlateCarree())#, vmin=-1.5, vmax=1.5)
             else:
@@ -90,7 +90,7 @@ def quick_map(mapdata, lat, lon,
     plt.show()
 
     if filepath:
-        fig.savefig(filepath+'.png', dpi=300, facecolor=None, edgecolor=None,
+        fig.savefig(filepath, dpi=300, facecolor=None, edgecolor=None,
                     bbox_inches='tight', transparent=True, pad_inches=0.2, linewidth=2)
 
         print('done saving file')
